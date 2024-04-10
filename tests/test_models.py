@@ -31,6 +31,7 @@ from service.models import Product, Category, db
 from service import app
 from tests.factories import ProductFactory
 
+
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
@@ -104,3 +105,91 @@ class TestProductModel(unittest.TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
+
+    def test_read_a_product(self):
+        """It should Read a product"""
+        product = ProductFactory()
+        app.logger.debug("Product to be created: %s", product.serialize())
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        #
+        retrieved_product = Product.find(product.id)
+        self.assertIsNotNone(retrieved_product)
+        self.assertEqual(retrieved_product.id, product.id)
+        self.assertEqual(retrieved_product.name, product.name)
+        self.assertEqual(retrieved_product.description, product.description)
+        self.assertEqual(Decimal(retrieved_product.price), product.price)
+        self.assertEqual(retrieved_product.available, product.available)
+        self.assertEqual(retrieved_product.category, product.category)
+
+    def test_update_a_product(self):
+        """It should Update a product"""
+        product = ProductFactory()
+        app.logger.debug("Product to be created: %s", product.serialize())
+        product.id = None
+        product.create()
+        app.logger.debug("Product just created: %s", product.serialize())
+        self.assertIsNotNone(product.id)
+        #
+        product.description = "This is the new description"
+        product.update()
+        #
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        retrieved_product = products[0]
+        self.assertEqual(retrieved_product.id, product.id)
+        self.assertEqual(retrieved_product.name, product.name)
+        self.assertEqual(retrieved_product.description, product.description)
+        self.assertEqual(Decimal(retrieved_product.price), product.price)
+        self.assertEqual(retrieved_product.available, product.available)
+        self.assertEqual(retrieved_product.category, product.category)
+
+    def test_delete_a_product(self):
+        """It should Delete a product"""
+        product_1 = ProductFactory()
+        product_1.id = None
+        product_1.create()
+        product_2 = ProductFactory()
+        product_2.id = None
+        product_2.create()
+        products = Product.all()
+        self.assertEqual(len(products), 2)
+        #
+        product_1.delete()
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        last_product = products[0]
+        self.assertEqual(last_product.id, product_2.id)
+
+    def test_list_all_products(self):
+        """It should List all products"""
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+        #
+        num_of_products = 5
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+        products = Product.all()
+        self.assertEqual(len(products), num_of_products)
+
+    def test_find_a_product_by_name(self):
+        """It should Find a product by name"""
+        created_products = []
+        num_of_products = 5
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+        first_name = created_products[0].name
+        num_with_first_name = sum(map(lambda p : p.name == first_name, created_products))
+        app.logger.debug("Expected products: %i", num_with_first_name)
+        #
+        query = Product.find_by_name(first_name)
+        products = query.all()
+        self.assertEqual(len(products), num_with_first_name)
+        for product in products:
+            self.assertEqual(product.name, first_name)
