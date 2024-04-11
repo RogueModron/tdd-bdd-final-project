@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -193,3 +193,123 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(products), num_with_first_name)
         for product in products:
             self.assertEqual(product.name, first_name)
+
+    def test_find_a_product_by_availability(self):
+        """It should Find a product by availability"""
+        created_products = []
+        num_of_products = 10
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+        first_availability = created_products[0].available
+        num_with_first_availability = sum(map(lambda p : p.available == first_availability, created_products))
+        app.logger.debug("Expected products: %i", num_with_first_availability)
+        #
+        query = Product.find_by_availability(first_availability)
+        products = query.all()
+        self.assertEqual(len(products), num_with_first_availability)
+        for product in products:
+            self.assertEqual(product.available, first_availability)
+
+    def test_find_a_product_by_category(self):
+        """It should Find a product by category"""
+        created_products = []
+        num_of_products = 10
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+        first_category = created_products[0].category
+        num_with_first_category = sum(map(lambda p : p.category == first_category, created_products))
+        app.logger.debug("Expected products: %i", num_with_first_category)
+        #
+        query = Product.find_by_category(first_category)
+        products = query.all()
+        self.assertEqual(len(products), num_with_first_category)
+        for product in products:
+            self.assertEqual(product.category, first_category)
+
+    def test_find_a_product_by_price(self):
+        """It should Find a product by price"""
+        created_products = []
+        num_of_products = 10
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+        first_price = created_products[0].price
+        num_with_first_price = sum(map(lambda p : p.price == first_price, created_products))
+        app.logger.debug("Expected products: %i", num_with_first_price)
+        #
+        query = Product.find_by_price(first_price)
+        products = query.all()
+        self.assertEqual(len(products), num_with_first_price)
+        for product in products:
+            self.assertEqual(product.price, first_price)
+
+    def test_update_a_product_without_id(self):
+        """It should Raise an exception when updating a product without id"""
+        product = ProductFactory()
+        product.id = None
+        self.assertRaises(DataValidationError, product.update)
+
+    def test_deserialize_a_product(self):
+        """It should Deserialize a product"""
+        product = ProductFactory()
+        serialization = product.serialize()
+        other_product = ProductFactory()
+        other_product.deserialize(serialization)
+        self.assertEqual(other_product.name, product.name)
+        self.assertEqual(other_product.description, product.description)
+        self.assertEqual(Decimal(other_product.price), product.price)
+        self.assertEqual(other_product.available, product.available)
+        self.assertEqual(other_product.category, product.category)
+
+    def test_deserialize_a_product_with_invalid_availability(self):
+        """It should Raise an exception when deserializing a product with invalid availability"""
+        product = ProductFactory()
+        serialization = product.serialize()
+        serialization["available"] = "NoWay"
+        self.assertRaises(DataValidationError, product.deserialize, serialization)
+
+    def test_deserialize_a_product_with_invalid_attribute(self):
+        """It should Raise an exception when deserializing a product with invalid attribute"""
+        product = ProductFactory()
+        serialization = product.serialize()
+        serialization["category"] = "NoWay"
+        self.assertRaises(DataValidationError, product.deserialize, serialization)
+
+    def test_deserialize_a_product_with_a_missing_key(self):
+        """It should Raise an exception when deserializing a product with a missing key"""
+        product = ProductFactory()
+        serialization = product.serialize()
+        del serialization["name"]
+        self.assertRaises(DataValidationError, product.deserialize, serialization)
+
+    def test_deserialize_a_product_with_empty_data(self):
+        """It should Raise an exception when deserializing a product with empty data"""
+        product = ProductFactory()
+        self.assertRaises(DataValidationError, product.deserialize, "")
+
+    def test_find_a_product_by_price_with_a_string_value(self):
+        """It should Find a product by price with a string value"""
+        created_products = []
+        num_of_products = 10
+        for i in range(num_of_products):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            created_products.append(product)
+        first_price = created_products[0].price
+        num_with_first_price = sum(map(lambda p : p.price == first_price, created_products))
+        app.logger.debug("Expected products: %i", num_with_first_price)
+        #
+        query = Product.find_by_price(str(first_price))
+        products = query.all()
+        self.assertEqual(len(products), num_with_first_price)
+        for product in products:
+            self.assertEqual(product.price, first_price)
