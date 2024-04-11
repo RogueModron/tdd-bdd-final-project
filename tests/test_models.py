@@ -168,7 +168,7 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(products), 0)
         #
         num_of_products = 5
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
@@ -179,13 +179,13 @@ class TestProductModel(unittest.TestCase):
         """It should Find a product by name"""
         created_products = []
         num_of_products = 5
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
             created_products.append(product)
         first_name = created_products[0].name
-        num_with_first_name = sum(map(lambda p : p.name == first_name, created_products))
+        num_with_first_name = sum(map(lambda p: p.name == first_name, created_products))
         app.logger.debug("Expected products: %i", num_with_first_name)
         #
         query = Product.find_by_name(first_name)
@@ -198,13 +198,13 @@ class TestProductModel(unittest.TestCase):
         """It should Find a product by availability"""
         created_products = []
         num_of_products = 10
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
             created_products.append(product)
         first_availability = created_products[0].available
-        num_with_first_availability = sum(map(lambda p : p.available == first_availability, created_products))
+        num_with_first_availability = sum(map(lambda p: p.available == first_availability, created_products))
         app.logger.debug("Expected products: %i", num_with_first_availability)
         #
         query = Product.find_by_availability(first_availability)
@@ -217,13 +217,13 @@ class TestProductModel(unittest.TestCase):
         """It should Find a product by category"""
         created_products = []
         num_of_products = 10
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
             created_products.append(product)
         first_category = created_products[0].category
-        num_with_first_category = sum(map(lambda p : p.category == first_category, created_products))
+        num_with_first_category = sum(map(lambda p: p.category == first_category, created_products))
         app.logger.debug("Expected products: %i", num_with_first_category)
         #
         query = Product.find_by_category(first_category)
@@ -236,13 +236,13 @@ class TestProductModel(unittest.TestCase):
         """It should Find a product by price"""
         created_products = []
         num_of_products = 10
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
             created_products.append(product)
         first_price = created_products[0].price
-        num_with_first_price = sum(map(lambda p : p.price == first_price, created_products))
+        num_with_first_price = sum(map(lambda p: p.price == first_price, created_products))
         app.logger.debug("Expected products: %i", num_with_first_price)
         #
         query = Product.find_by_price(first_price)
@@ -299,13 +299,13 @@ class TestProductModel(unittest.TestCase):
         """It should Find a product by price with a string value"""
         created_products = []
         num_of_products = 10
-        for i in range(num_of_products):
+        for _ in range(num_of_products):
             product = ProductFactory()
             product.id = None
             product.create()
             created_products.append(product)
         first_price = created_products[0].price
-        num_with_first_price = sum(map(lambda p : p.price == first_price, created_products))
+        num_with_first_price = sum(map(lambda p: p.price == first_price, created_products))
         app.logger.debug("Expected products: %i", num_with_first_price)
         #
         query = Product.find_by_price(str(first_price))
