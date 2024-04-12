@@ -226,6 +226,26 @@ class TestProductRoutes(TestCase):
         response = self.client.delete(BASE_URL + "/666")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_list_all_products(self):
+        """It should List all Products"""
+        num_of_products = 3
+        test_products = self._create_products(num_of_products)
+        product_count = self.get_product_count()
+        self.assertEqual(product_count, num_of_products)
+
+    def test_list_products_by_name(self):
+        """It should List Products by name"""
+        num_of_products = 10
+        test_products = self._create_products(num_of_products)
+        first_name = test_products[0].name
+        num_with_first_name = sum(map(lambda p: p.name == first_name, test_products))
+        response = self.client.get(BASE_URL + "?name=" + first_name)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        retrieved_products = response.get_json()
+        self.assertEqual(len(retrieved_products), num_with_first_name)
+        for product in retrieved_products:
+            self.assertEqual(product["name"], first_name)
+
     ######################################################################
     # Utility functions
     ######################################################################
