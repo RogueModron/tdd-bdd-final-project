@@ -38,3 +38,93 @@ Scenario: Create a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Tools" in the "Category" dropdown
     And I should see "34.95" in the "Price" field
+
+Scenario: Read a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Hammer"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Hat" in the "Name" field
+    And I should see "A red fedora" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "Cloths" in the "Category" dropdown
+    And I should see "59.95" in the "Price" field
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Big Mac"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    When I set the "Description" to "NiHao"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "NiHao" in the "Description" field
+    And I should see "NiHao" for the "Description" of the product in the table
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Shoes"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    When I press the "Delete" button
+    Then I should see the message "Product has been Deleted!"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should not see the product in the table
+
+Scenario: List all Products
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "4" product(s) in the table
+    And I should see a product "Hammer" in the table
+    And I should see a product "Hat" in the table
+    And I should see a product "Big Mac" in the table
+    And I should see a product "Sheets" in the table
+
+Scenario: Search a Product based on Category
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I select "Housewares" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "1" product(s) in the table
+    And I should see a product "Sheets" in the table
+
+Scenario: Search a Product based on Available
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I select "False" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "1" product(s) in the table
+    And I should see a product "Shoes" in the table
+
+Scenario: Search a Product based on Name
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I set the "Name" to "Shoes"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "1" product(s) in the table
+    And I should see a product "Shoes" in the table

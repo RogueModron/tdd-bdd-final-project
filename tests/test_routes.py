@@ -188,25 +188,16 @@ class TestProductRoutes(TestCase):
         """It should Update a Product"""
         test_product = self._create_products()[0]
         test_product.description = "This is the new description and you can't deny it"
-        response = self.client.put(BASE_URL, json=test_product.serialize())
+        response = self.client.put(BASE_URL + "/" + str(test_product.id), json=test_product.serialize())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         retrieved_product = response.get_json()
         self.assertEqual(retrieved_product["description"], test_product.description)
 
-    def test_update_product_with_missing_id(self):
-        """It should not Update a Product with missing id"""
-        test_product = ProductFactory()
-        serialized = test_product.serialize()
-        del serialized["id"]
-        response = self.client.put(BASE_URL, json=serialized)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_update_product_not_found(self):
         """It should not Update a Product"""
         test_product = ProductFactory()
-        test_product.id = 666
         serialized = test_product.serialize()
-        response = self.client.put(BASE_URL, json=serialized)
+        response = self.client.put(BASE_URL + "/666", json=serialized)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_product(self):
@@ -263,14 +254,14 @@ class TestProductRoutes(TestCase):
         """It should List Products by availability"""
         num_of_products = 10
         test_products = self._create_products(num_of_products)
-        first_availability = test_products[0].available
-        num_with_first_availability = sum(map(lambda p: p.available == first_availability, test_products))
-        response = self.client.get(BASE_URL + "?availability=" + str(first_availability))
+        first_available = test_products[0].available
+        num_with_first_available = sum(map(lambda p: p.available == first_available, test_products))
+        response = self.client.get(BASE_URL + "?available=" + str(first_available))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         retrieved_products = response.get_json()
-        self.assertEqual(len(retrieved_products), num_with_first_availability)
+        self.assertEqual(len(retrieved_products), num_with_first_available)
         for product in retrieved_products:
-            self.assertEqual(product["available"], first_availability)
+            self.assertEqual(product["available"], first_available)
 
     def test_list_products_with_more_then_one_query_parameter(self):
         """It should not List Products when more than one query parameter is used"""

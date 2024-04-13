@@ -114,7 +114,7 @@ def list_all_products():
         (param, value) = next(iter(request.args.items()))
         param = param.lower()
 
-    if param not in ["", "name", "category", "availability"]:
+    if param not in ["", "name", "category", "available"]:
         abort(
             status.HTTP_400_BAD_REQUEST
         )
@@ -130,7 +130,7 @@ def list_all_products():
                 status.HTTP_400_BAD_REQUEST
             )
         products = Product.find_by_category(category)
-    elif param == "availability":
+    elif param == "available":
         available = value.lower() == "true"
         products = Product.find_by_availability(available)
     else:
@@ -161,8 +161,8 @@ def get_products(product_id):
 ######################################################################
 # U P D A T E   A   P R O D U C T
 ######################################################################
-@app.route("/products", methods=["PUT"])
-def update_products():
+@app.route("/products/<product_id>", methods=["PUT"])
+def update_products(product_id):
     """
     Updates a Product
     This endpoint will update a Product based the data in the body
@@ -173,12 +173,7 @@ def update_products():
     data = request.get_json()
     app.logger.info("Processing: %s", data)
 
-    if "id" not in data.keys():
-        abort(
-            status.HTTP_400_BAD_REQUEST
-        )
-
-    product = Product.find(data["id"])
+    product = Product.find(product_id)
     if product is None:
         abort(
             status.HTTP_404_NOT_FOUND
