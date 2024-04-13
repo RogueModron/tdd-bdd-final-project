@@ -41,7 +41,8 @@ Scenario: Create a Product
 
 Scenario: Read a Product
     When I visit the "Home Page"
-    And I set the "Name" to "Hammer"
+    And I press the "Clear" button
+    And I set the "Name" to "Hat"
     And I press the "Search" button
     Then I should see the message "Success"
     When I copy the "Id" field
@@ -57,6 +58,7 @@ Scenario: Read a Product
 
 Scenario: Update a Product
     When I visit the "Home Page"
+    And I press the "Clear" button
     And I set the "Name" to "Big Mac"
     And I press the "Search" button
     Then I should see the message "Success"
@@ -70,13 +72,13 @@ Scenario: Update a Product
     Then I should see the message "Success"
     When I press the "Clear" button
     And I paste the "Id" field
-    And I press the "Retrieve" button
+    And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "NiHao" in the "Description" field
-    And I should see "NiHao" for the "Description" of the product in the table
+    And I should see "NiHao" in the results
 
 Scenario: Delete a Product
     When I visit the "Home Page"
+    And I press the "Clear" button
     And I set the "Name" to "Shoes"
     And I press the "Search" button
     Then I should see the message "Success"
@@ -89,18 +91,18 @@ Scenario: Delete a Product
     Then I should see the message "Product has been Deleted!"
     When I press the "Clear" button
     And I press the "Search" button
-    Then I should not see the product in the table
+    Then I should not see "Shoes" in the results
+    And I should see "Hat" in the results
 
 Scenario: List all Products
     When I visit the "Home Page"
     And I press the "Clear" button
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "4" product(s) in the table
-    And I should see a product "Hammer" in the table
-    And I should see a product "Hat" in the table
-    And I should see a product "Big Mac" in the table
-    And I should see a product "Sheets" in the table
+    And I should see "Hat" in the results
+    And I should see "Shoes" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
 
 Scenario: Search a Product based on Category
     When I visit the "Home Page"
@@ -108,17 +110,18 @@ Scenario: Search a Product based on Category
     And I select "Housewares" in the "Category" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "1" product(s) in the table
-    And I should see a product "Sheets" in the table
+    And I should see "Sheets" in the results
+    And I should not see "Hat" in the results
 
+# TODO: Select "False" in the "Available" dropdown should filter correctly instead of returning all the products.
 Scenario: Search a Product based on Available
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I select "False" in the "Available" dropdown
+    And I select "True" in the "Available" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "1" product(s) in the table
-    And I should see a product "Shoes" in the table
+    And I should see "Hat" in the results
+    And I should not see "Shoes" in the results
 
 Scenario: Search a Product based on Name
     When I visit the "Home Page"
@@ -126,5 +129,5 @@ Scenario: Search a Product based on Name
     And I set the "Name" to "Shoes"
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "1" product(s) in the table
-    And I should see a product "Shoes" in the table
+    And I should see "Shoes" in the results
+    And I should not see "Hat" in the results

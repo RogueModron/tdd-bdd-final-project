@@ -31,6 +31,9 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'product_'
+BUTTON_ID_SUFFIX = '-btn'
+MESSAGE_ID = 'flash_message'
+RESULTS_ID = 'search_results'
 
 
 @when('I visit the "Home Page"')
@@ -106,6 +109,14 @@ def step_impl(context, element_name):
 
 ## UPDATE CODE HERE ##
 
+@when(u'I press the "{button_id}" button')
+def step_impl(context, button_id):
+    button_id = button_id.lower().replace(' ', '_') + BUTTON_ID_SUFFIX
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, button_id))
+    )
+    element.click()
+
 ##################################################################
 # This code works because of the following naming convention:
 # The id field for text input in the html is the element name
@@ -132,3 +143,31 @@ def step_impl(context, element_name, text_string):
     )
     element.clear()
     element.send_keys(text_string)
+
+
+###
+###
+###
+
+
+@then(u'I should see the message "{message}"')
+def step_impl(context, message):
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, MESSAGE_ID))
+    )
+    assert(element.get_attribute("innerText") == message)
+
+
+@then(u'I should see "{text}" in the results')
+def step_impl(context, text):
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, RESULTS_ID))
+    )
+    assert(text in element.get_attribute("innerText"))
+
+@then(u'I should not see "{text}" in the results')
+def step_impl(context, text):
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, RESULTS_ID))
+    )
+    assert(text not in element.get_attribute("innerText"))
