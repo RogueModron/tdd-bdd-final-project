@@ -20,7 +20,7 @@ Product Store Service with UI
 """
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -97,36 +97,70 @@ def create_products():
 ######################################################################
 # L I S T   A L L   P R O D U C T S
 ######################################################################
-
 @app.route("/products")
 def list_all_products():
-    name = request.args.get("name", "")
-    if name != "":
-        products = Product.find_by_name(name)
+    """
+        Get a list of products
+        TODO:
+    """
+    if len(request.args) > 1:
+        abort(
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    param = ""
+    value = ""
+    if len(request.args) == 1:
+        (param, value) = next(iter(request.args.items()))
+        param = param.lower()
+
+    if param not in ["", "name", "category", "availability"]:
+        abort(
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    if param == "name":
+        products = Product.find_by_name(value)
+    elif param == "category":
+        category = Category.UNKNOWN
+        try:
+            category = getattr(Category, value)
+        except AttributeError:
+            abort(
+                status.HTTP_400_BAD_REQUEST
+            )
+        products = Product.find_by_category(category)
+    elif param == "availability":
+        available = value.lower() == "true"
+        products = Product.find_by_availability(available)
     else:
         products = Product.all()
     serialized_products = []
-    for p in products:
-        serialized_products.append(p.serialize())
+    for product in products:
+        serialized_products.append(product.serialize())
     return jsonify(serialized_products), status.HTTP_200_OK
+
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
-
 @app.route("/products/<product_id>")
 def get_products(product_id):
+    """
+        Read a product
+        TODO:
+    """
     product = Product.find(product_id)
-    if product == None:
+    if product is None:
         abort(
             status.HTTP_404_NOT_FOUND
         )
     return jsonify(product.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # U P D A T E   A   P R O D U C T
 ######################################################################
-
 @app.route("/products", methods=["PUT"])
 def update_products():
     """
@@ -139,13 +173,13 @@ def update_products():
     data = request.get_json()
     app.logger.info("Processing: %s", data)
 
-    if not "id" in data.keys():
+    if "id" not in data.keys():
         abort(
             status.HTTP_400_BAD_REQUEST
         )
 
     product = Product.find(data["id"])
-    if product == None:
+    if product is None:
         abort(
             status.HTTP_404_NOT_FOUND
         )
@@ -158,10 +192,10 @@ def update_products():
 
     return jsonify(message), status.HTTP_200_OK
 
+
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
-
 @app.route("/products/<product_id>", methods=["DELETE"])
 def delete_products(product_id):
     """
@@ -173,7 +207,7 @@ def delete_products(product_id):
     app.logger.info("Processing: %s", product_id)
 
     product = Product.find(product_id)
-    if product == None:
+    if product is None:
         abort(
             status.HTTP_404_NOT_FOUND
         )

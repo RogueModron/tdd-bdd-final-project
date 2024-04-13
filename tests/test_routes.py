@@ -229,7 +229,7 @@ class TestProductRoutes(TestCase):
     def test_list_all_products(self):
         """It should List all Products"""
         num_of_products = 3
-        test_products = self._create_products(num_of_products)
+        self._create_products(num_of_products)
         product_count = self.get_product_count()
         self.assertEqual(product_count, num_of_products)
 
@@ -245,6 +245,47 @@ class TestProductRoutes(TestCase):
         self.assertEqual(len(retrieved_products), num_with_first_name)
         for product in retrieved_products:
             self.assertEqual(product["name"], first_name)
+
+    def test_list_products_by_category(self):
+        """It should List Products by category"""
+        num_of_products = 10
+        test_products = self._create_products(num_of_products)
+        first_category = test_products[0].category
+        num_with_first_category = sum(map(lambda p: p.category == first_category, test_products))
+        response = self.client.get(BASE_URL + "?category=" + first_category.name)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        retrieved_products = response.get_json()
+        self.assertEqual(len(retrieved_products), num_with_first_category)
+        for product in retrieved_products:
+            self.assertEqual(product["category"], first_category.name)
+
+    def test_list_products_by_availability(self):
+        """It should List Products by availability"""
+        num_of_products = 10
+        test_products = self._create_products(num_of_products)
+        first_availability = test_products[0].available
+        num_with_first_availability = sum(map(lambda p: p.available == first_availability, test_products))
+        response = self.client.get(BASE_URL + "?availability=" + str(first_availability))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        retrieved_products = response.get_json()
+        self.assertEqual(len(retrieved_products), num_with_first_availability)
+        for product in retrieved_products:
+            self.assertEqual(product["available"], first_availability)
+
+    def test_list_products_with_more_then_one_query_parameter(self):
+        """It should not List Products when more than one query parameter is used"""
+        response = self.client.get(BASE_URL + "?name=hello&availability=false")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_products_with_unknown_query_parameter(self):
+        """It should not List Products when an unknown query parameter is used"""
+        response = self.client.get(BASE_URL + "?goaway=no")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_products_with_not_existing_category(self):
+        """It should not List Products when a category that does not exist is used"""
+        response = self.client.get(BASE_URL + "?category=hacking-bs")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     ######################################################################
     # Utility functions
